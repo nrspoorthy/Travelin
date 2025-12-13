@@ -1,7 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,9 +9,13 @@ import Navbar from "@/components/Navbar";
 import { Playfair_Display } from "next/font/google";
 import Footer from "@/components/Footer";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"] });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
 
-export default function DestinationsPage() {
+/* ================= INNER CONTENT ================= */
+function DestinationsContent() {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,34 +40,33 @@ export default function DestinationsPage() {
     fetchDestinations();
   }, []);
 
-
   const finalDestinations = destinationParam
     ? destinations.filter((place) =>
-        place.name
-          .toLowerCase()
-          .includes(destinationParam.toLowerCase())
+        place.name.toLowerCase().includes(destinationParam.toLowerCase())
       )
     : destinations;
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-lg text-gray-600">
         Loading destinations...
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className="flex justify-center items-center h-screen text-red-600">
         {error}
       </div>
     );
+  }
 
   return (
     <>
       <Navbar />
 
-      
+      {/* Banner */}
       <section
         className="relative bg-cover bg-center h-[400px] md:h-[180px] flex flex-col justify-center"
         style={{
@@ -92,7 +95,7 @@ export default function DestinationsPage() {
         </div>
       </section>
 
-      
+      {/* Content */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
           <h3
@@ -147,14 +150,21 @@ export default function DestinationsPage() {
           </div>
 
           {finalDestinations.length === 0 && (
-            <p className="text-gray-500 mt-10">
-              No destinations found
-            </p>
+            <p className="text-gray-500 mt-10">No destinations found</p>
           )}
         </div>
       </section>
 
       <Footer />
     </>
+  );
+}
+
+/* ================= SUSPENSE WRAPPER ================= */
+export default function DestinationsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+      <DestinationsContent />
+    </Suspense>
   );
 }
