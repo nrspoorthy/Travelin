@@ -25,7 +25,7 @@ function TourBookingContent() {
   const [statusMsg, setStatusMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  /* ---------- FORM STATE (SAME AS DESTINATION) ---------- */
+
   const [formData, setFormData] = useState({
     title: "Mr.",
     firstName: "",
@@ -38,7 +38,7 @@ function TourBookingContent() {
     address2: "",
   });
 
-  /* ---------- FETCH TOUR (FOR SIDEBAR) ---------- */
+
   useEffect(() => {
     if (!tourId) return;
 
@@ -51,14 +51,13 @@ function TourBookingContent() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  /* ---------- PRICE LOGIC ---------- */
   const USD_TO_INR = 83;
   const basePriceUSD = tour?.price || 0;
   const basePriceINR = Math.round(basePriceUSD * USD_TO_INR);
   const tax = Math.round(basePriceINR * 0.1);
   const total = basePriceINR + tax;
 
-  /* ---------- BOOK TOUR ---------- */
+
   const handleBooking = async () => {
     setErrorMsg("");
     setStatusMsg("");
@@ -92,7 +91,7 @@ function TourBookingContent() {
     <div className="bg-gray-50">
       <Navbar />
 
-      {/* ---------- BANNER ---------- */}
+      
       <section
         className="relative bg-cover bg-center h-[180px] flex items-center justify-center"
         style={{
@@ -109,10 +108,10 @@ function TourBookingContent() {
         </div>
       </section>
 
-      {/* ---------- MAIN LAYOUT ---------- */}
+      
       <div className="max-w-screen-xl mx-auto px-4 py-14 grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-        {/* ================= FORM (EXACT DESTINATION UI) ================= */}
+        
         <div className="lg:col-span-2 bg-white p-12 rounded-3xl shadow">
           <h2 className={`${playfair.className} text-3xl font-bold mb-2`}>
             Traveller Information
@@ -251,7 +250,7 @@ function TourBookingContent() {
           )}
         </div>
 
-        {/* ================= RIGHT SIDEBAR ================= */}
+        
         {tour && (
           <div className="bg-white p-8 rounded-3xl shadow h-fit">
             <Image
@@ -297,7 +296,6 @@ function TourBookingContent() {
 
       <Footer />
 
-      {/* ---------- GLOBAL STYLES ---------- */}
       <style jsx global>{`
         .label {
           display: block;

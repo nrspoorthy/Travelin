@@ -24,28 +24,22 @@ export default function Navbar({ onLoginCheck }) {
 
         if (!res.ok) {
           setIsLoggedIn(false);
-          if (onLoginCheck) onLoginCheck(false);
+          onLoginCheck?.(false);
           return;
         }
 
         const data = await res.json();
-        if (data.success) {
-          setIsLoggedIn(true);
-          if (onLoginCheck) onLoginCheck(true);
-        } else {
-          setIsLoggedIn(false);
-          if (onLoginCheck) onLoginCheck(false);
-        }
+        setIsLoggedIn(data.success);
+        onLoginCheck?.(data.success);
       } catch {
         setIsLoggedIn(false);
-        if (onLoginCheck) onLoginCheck(false);
+        onLoginCheck?.(false);
       }
     };
 
     checkLogin();
   }, []);
 
- 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000);
     return () => clearInterval(timer);
@@ -64,33 +58,32 @@ export default function Navbar({ onLoginCheck }) {
     hour12: true,
   });
 
-
   const handleProtectedNav = (path) => {
     if (!isLoggedIn) {
-      setShowLogin(true); 
+      setShowLogin(true);
       return;
     }
-    router.push(path); 
+    setMenuOpen(false);
+    router.push(path);
   };
-
 
   const handleLogout = () => {
     document.cookie = "token=; Path=/; Max-Age=0;";
     setIsLoggedIn(false);
-    if (onLoginCheck) onLoginCheck(false);
+    onLoginCheck?.(false);
+    setMenuOpen(false);
   };
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setShowLogin(false);
-    if (onLoginCheck) onLoginCheck(true);
+    onLoginCheck?.(true);
   };
 
   return (
     <div className="w-full">
-
       
-      <div className="hidden md:flex bg-teal-600 text-white text-sm justify-between items-center px-4 py-1 md:px-6 md:py-2">
+      <div className="hidden md:flex bg-teal-600 text-white text-sm justify-between items-center px-6 py-2">
         <div className="flex space-x-6">
           <span>{todayStr}</span>
           <span>Tollywood, India</span>
@@ -111,7 +104,6 @@ export default function Navbar({ onLoginCheck }) {
             </button>
           )}
 
-          
           <button
             onClick={() => handleProtectedNav("/destinations")}
             className="bg-white text-teal-600 px-3 py-1 rounded"
@@ -121,104 +113,97 @@ export default function Navbar({ onLoginCheck }) {
         </div>
       </div>
 
-     
+      {/* HEADER */}
       <header className="bg-white shadow-md">
-        <div className="flex justify-between items-center max-w-screen-xl mx-auto px-1 py-1">
-
-          
+        <div className="flex justify-between items-center max-w-screen-xl mx-auto px-4 py-2">
           <div className="relative w-36 h-14 md:w-42 md:h-20">
             <Image
               src="https://htmldesigntemplates.com/html/travelin/images/logo.png"
               alt="Logo"
               fill
-              sizes="100vw"
               className="object-contain"
             />
           </div>
 
-          
+          {/* DESKTOP NAV */}
           <nav className="hidden md:flex space-x-5 text-gray-700">
             <Link href="/">Home</Link>
-
-            
-            <button onClick={() => handleProtectedNav("/about")}>
-              About Us
-            </button>
-
+            <button onClick={() => handleProtectedNav("/about")}>About Us</button>
             <button onClick={() => handleProtectedNav("/destinations")}>
               Destinations
             </button>
-
-            <button onClick={() => handleProtectedNav("/tours")}>
-              Tours
-            </button>
-
+            <button onClick={() => handleProtectedNav("/tours")}>Tours</button>
             <button onClick={() => handleProtectedNav("/bookings/status")}>
               Bookings
             </button>
-
-
-            <button onClick={() => handleProtectedNav("/blog")}>
-              Blog
-            </button>
+            <button onClick={() => handleProtectedNav("/blog")}>Blog</button>
           </nav>
 
-         
+          
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-gray-700"
+            onClick={() => setMenuOpen(true)}
+            className="md:hidden text-2xl text-gray-800"
           >
             ☰
           </button>
         </div>
-
-        
-        {menuOpen && (
-          <div className="md:hidden bg-white px-4 pb-4 shadow-lg">
-            <nav className="flex flex-col space-y-4 text-gray-700 font-medium">
-
-              <Link href="/" onClick={() => setMenuOpen(false)}>
-                Home
-              </Link>
-
-              
-              <button onClick={() => handleProtectedNav("/about")}>About Us</button>
-              <button onClick={() => handleProtectedNav("/destinations")}>Destinations</button>
-              <button onClick={() => handleProtectedNav("/tours")}>Tours</button>
-              <button onClick={() => handleProtectedNav("/bookings/status")}>
-                Bookings
-              </button>
-
-              <button onClick={() => handleProtectedNav("/blog")}>Blog</button>
-
-              
-              {isLoggedIn ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMenuOpen(false);
-                  }}
-                  className="text-red-500"
-                >
-                  Logout
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setShowLogin(true);
-                    setMenuOpen(false);
-                  }}
-                  className="text-teal-600"
-                >
-                  Login / Register
-                </button>
-              )}
-            </nav>
-          </div>
-        )}
       </header>
 
       
+      <div
+        className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 ${
+          menuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        onClick={() => setMenuOpen(false)}
+      />
+
+      <div
+  className={`fixed top-0 right-0 z-50 h-full w-72
+  bg-gradient-to-b from-[#0f0c1d] to-[#1a1633]
+  transform transition-transform duration-700 ease-out
+  ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
+>
+
+        <div className="flex justify-end p-4">
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="text-white text-2xl"
+          >
+            ✕
+          </button>
+        </div>
+
+        <nav className="flex flex-col divide-y divide-white/10 text-white text-lg font-medium">
+          <button onClick={() => handleProtectedNav("/")}>HOME</button>
+          <button onClick={() => handleProtectedNav("/about")}>ABOUT US</button>
+          <button onClick={() => handleProtectedNav("/destinations")}>
+            DESTINATIONS
+          </button>
+          <button onClick={() => handleProtectedNav("/tours")}>TOURS</button>
+          <button onClick={() => handleProtectedNav("/bookings/status")}>
+            BOOKINGS
+          </button>
+          <button onClick={() => handleProtectedNav("/blog")}>BLOG</button>
+
+          {isLoggedIn ? (
+            <button onClick={handleLogout} className="text-red-400">
+              LOGOUT
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setShowLogin(true);
+                setMenuOpen(false);
+              }}
+              className="text-teal-300"
+            >
+              LOGIN / REGISTER
+            </button>
+          )}
+        </nav>
+      </div>
+
+     
       {showLogin && (
         <AuthModol
           onClose={() => setShowLogin(false)}

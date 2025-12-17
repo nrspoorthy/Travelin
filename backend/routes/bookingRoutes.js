@@ -85,13 +85,6 @@ router.post("/tour", async (req, res) => {
 
 
 
-
-
-
-
-
-
-
 router.post("/destination", async (req, res) => {
   try {
     const {
