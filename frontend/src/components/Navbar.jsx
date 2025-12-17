@@ -117,12 +117,14 @@ export default function Navbar({ onLoginCheck }) {
       <header className="bg-white shadow-md">
         <div className="flex justify-between items-center max-w-screen-xl mx-auto px-4 py-2">
           <div className="relative w-36 h-14 md:w-42 md:h-20">
+            <Link href="/">
             <Image
               src="https://htmldesigntemplates.com/html/travelin/images/logo.png"
               alt="Logo"
               fill
               className="object-contain"
             />
+            </Link>
           </div>
 
           {/* DESKTOP NAV */}
