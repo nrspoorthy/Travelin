@@ -15,15 +15,17 @@ const playfair = Playfair_Display({
   weight: ["400", "700"],
 });
 
-/* ================= INNER CONTENT ================= */
 function TourBookingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const destinationId = searchParams.get("destinationId");
 
-  const [destination, setDestination] = useState(null);
+  const tourId = searchParams.get("tourId");
+
+  const [tour, setTour] = useState(null);
   const [statusMsg, setStatusMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
+  /* ---------- FORM STATE (SAME AS DESTINATION) ---------- */
   const [formData, setFormData] = useState({
     title: "Mr.",
     firstName: "",
@@ -36,43 +38,61 @@ function TourBookingContent() {
     address2: "",
   });
 
+  /* ---------- FETCH TOUR (FOR SIDEBAR) ---------- */
   useEffect(() => {
-    if (!destinationId) return;
+    if (!tourId) return;
 
-    fetch(`http://localhost:5000/api/destinations/${destinationId}`)
+    fetch(`http://localhost:5000/api/tours/tour/${tourId}`)
       .then((res) => res.json())
-      .then((data) => setDestination(data))
+      .then((data) => setTour(data))
       .catch(console.error);
-  }, [destinationId]);
+  }, [tourId]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleBooking = async () => {
-    const res = await fetch("http://localhost:5000/api/bookings/destination", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...formData,
-        destinationId,
-        status: "Booked",
-      }),
-    });
+  /* ---------- PRICE LOGIC ---------- */
+  const USD_TO_INR = 83;
+  const basePriceUSD = tour?.price || 0;
+  const basePriceINR = Math.round(basePriceUSD * USD_TO_INR);
+  const tax = Math.round(basePriceINR * 0.1);
+  const total = basePriceINR + tax;
 
-    if (res.ok) {
-      setStatusMsg("Booking Successful! Tour Reserved");
+  /* ---------- BOOK TOUR ---------- */
+  const handleBooking = async () => {
+    setErrorMsg("");
+    setStatusMsg("");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/bookings/tour", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          tourId: tour._id,
+          persons: 1,
+          amountINR: total,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Booking failed");
+      }
+
+      setStatusMsg("Booking Successful! Redirecting...");
+      setTimeout(() => router.push("/bookings/status"), 1500);
+    } catch (err) {
+      setErrorMsg(err.message);
     }
   };
 
-  const basePrice = destination?.price || 0;
-  const tax = Math.round(basePrice * 0.1);
-  const total = basePrice + tax;
-
   return (
-    <>
+    <div className="bg-gray-50">
       <Navbar />
 
-      {/* Banner */}
+      {/* ---------- BANNER ---------- */}
       <section
         className="relative bg-cover bg-center h-[180px] flex items-center justify-center"
         style={{
@@ -81,53 +101,144 @@ function TourBookingContent() {
         }}
       >
         <div className="absolute inset-0 bg-[#012C3D]/85"></div>
-        <div className="relative text-center text-white">
-          <h1 className={`${playfair.className} text-4xl font-bold`}>
-            TOUR BOOKING
-          </h1>
-          <p className="text-gray-200">
+        <div className={`${playfair.className} relative text-center text-white`}>
+          <h1 className="text-4xl font-bold">TOUR BOOKING</h1>
+          <p className="text-gray-200 mt-2">
             <Link href="/">Home</Link> | Booking
           </p>
         </div>
       </section>
 
-      <div className="max-w-screen-xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT FORM */}
-        <div className="lg:col-span-2 bg-white p-10 rounded-2xl shadow">
-          <h2 className={`${playfair.className} text-2xl font-bold mb-4`}>
+      {/* ---------- MAIN LAYOUT ---------- */}
+      <div className="max-w-screen-xl mx-auto px-4 py-14 grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        {/* ================= FORM (EXACT DESTINATION UI) ================= */}
+        <div className="lg:col-span-2 bg-white p-12 rounded-3xl shadow">
+          <h2 className={`${playfair.className} text-3xl font-bold mb-2`}>
             Traveller Information
           </h2>
+          <p className="text-gray-500 mb-10">Let Us Know Who You Are</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
-              name="firstName"
-              placeholder="First Name"
-              className="input"
-              onChange={handleChange}
-            />
-            <input
-              name="lastName"
-              placeholder="Last Name"
-              className="input"
-              onChange={handleChange}
-            />
-            <input
-              name="email"
-              placeholder="Email"
-              className="input"
-              onChange={handleChange}
-            />
-            <input
-              name="phone"
-              placeholder="Phone"
-              className="input"
-              onChange={handleChange}
-            />
+          {/* Title / First / Last */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <label className="label">Title</label>
+              <select name="title" className="input" onChange={handleChange}>
+                <option>Mr.</option>
+                <option>Mrs.</option>
+                <option>Ms.</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="label">First Name</label>
+              <input
+                name="firstName"
+                className="input"
+                placeholder="First Name"
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="label">Last Name</label>
+              <input
+                name="lastName"
+                className="input"
+                placeholder="Last Name"
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
+          {/* Email / Phone */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div>
+              <label className="label">Email</label>
+              <input
+                name="email"
+                className="input"
+                placeholder="Email Address"
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="label">Phone</label>
+              <input
+                name="phone"
+                className="input"
+                placeholder="Phone No."
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Gender / DOB */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div>
+              <label className="label">Gender</label>
+              <select className="input">
+                <option>Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="label">DOB</label>
+              <input type="date" className="input" />
+            </div>
+          </div>
+
+          {/* Country / City */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div>
+              <label className="label">Select Country</label>
+              <input
+                name="country"
+                className="input"
+                placeholder="Country"
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="label">Select City</label>
+              <input
+                name="city"
+                className="input"
+                placeholder="City"
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div>
+              <label className="label">Address Line 1</label>
+              <input
+                name="address1"
+                className="input"
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="label">Address Line 2</label>
+              <input
+                name="address2"
+                className="input"
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Button */}
           <button
             onClick={handleBooking}
-            className="mt-6 bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700"
+            className="mt-10 bg-teal-600 text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-teal-700"
           >
             Confirm Booking
           </button>
@@ -135,43 +246,50 @@ function TourBookingContent() {
           {statusMsg && (
             <p className="mt-4 text-green-600 font-semibold">{statusMsg}</p>
           )}
+          {errorMsg && (
+            <p className="mt-4 text-red-600 font-semibold">{errorMsg}</p>
+          )}
         </div>
 
-        {/* RIGHT SIDEBAR */}
-        {destination && (
-          <div className="bg-white p-6 rounded-2xl shadow">
-            <div className="flex items-center gap-4">
-              <Image
-                src={destination.image}
-                alt={destination.name}
-                width={100}
-                height={100}
-                className="rounded-lg object-cover"
-              />
-              <div>
-                <div className="flex text-yellow-500">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} />
-                  ))}
-                </div>
-                <h4 className="font-semibold">{destination.name}</h4>
-                <p className="text-sm text-gray-500">{destination.country}</p>
-              </div>
+        {/* ================= RIGHT SIDEBAR ================= */}
+        {tour && (
+          <div className="bg-white p-8 rounded-3xl shadow h-fit">
+            <Image
+              src={tour.images?.[0]}
+              alt={tour.tourName}
+              width={260}
+              height={160}
+              className="rounded-2xl object-cover mb-6"
+            />
+
+            <div className="flex items-center gap-1 text-yellow-400 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <FaStar key={i} />
+              ))}
+              <span className="text-gray-500 text-sm ml-2">
+                {tour.totalReviews || 200} Reviews
+              </span>
             </div>
 
-            <div className="mt-4 border-t pt-4 space-y-2">
-              <div className="flex justify-between">
-                <span>Package</span>
-                <span>₹{basePrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tax</span>
-                <span>₹{tax}</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>₹{total}</span>
-              </div>
+            <h3 className={`${playfair.className} text-2xl font-bold`}>
+              {tour.tourName}
+            </h3>
+
+            <div className="flex justify-between mb-2">
+              <span>Base Price</span>
+              <span>₹{basePriceINR}</span>
+            </div>
+
+            <div className="flex justify-between mb-2">
+              <span>Tax</span>
+              <span>₹{tax}</span>
+            </div>
+
+            <hr className="my-4" />
+
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total</span>
+              <span>₹{total}</span>
             </div>
           </div>
         )}
@@ -179,26 +297,36 @@ function TourBookingContent() {
 
       <Footer />
 
-      <style jsx>{`
-        .input {
-          border: 1px solid #e5e7eb;
-          padding: 12px;
-          border-radius: 8px;
-          width: 100%;
+      {/* ---------- GLOBAL STYLES ---------- */}
+      <style jsx global>{`
+        .label {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 6px;
         }
-        .input:focus {
-          border-color: #0f766e;
+        .input {
+          width: 100%;
+          padding: 12px 16px;
+          border-radius: 12px;
+          border: 1px solid #d1d5db;
+          background: #fff;
+          font-size: 0.95rem;
           outline: none;
         }
+        .input:focus {
+          border-color: #0d9488;
+          box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.25);
+        }
       `}</style>
-    </>
+    </div>
   );
 }
 
-
 export default function TourBookingPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading booking…</div>}>
+    <Suspense fallback={<div className="text-center py-20">Loading...</div>}>
       <TourBookingContent />
     </Suspense>
   );

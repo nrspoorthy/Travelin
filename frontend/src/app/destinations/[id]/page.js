@@ -24,6 +24,9 @@ export default function DestinationDetailPage() {
   useEffect(() => {
     if (!id) return;
 
+   
+
+
     const fetchDestination = async () => {
       try {
         const res = await fetch(`http://localhost:5000/api/destinations/${id}`);

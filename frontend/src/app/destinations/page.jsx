@@ -14,7 +14,6 @@ const playfair = Playfair_Display({
   weight: ["400", "700"],
 });
 
-/* ================= INNER CONTENT ================= */
 function DestinationsContent() {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -130,9 +129,11 @@ function DestinationsContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent pointer-events-none"></div>
 
                 <div className="absolute bottom-0 left-0 p-5 text-left text-white">
+                  {/* ✅ LOGIC FIX ONLY */}
                   <p className="text-yellow-400 text-sm font-medium mb-1">
-                    {place.country || "Explore"}
+                    {place.name.split(",")[1]?.trim() || "Explore"}
                   </p>
+
                   <h3
                     className={`text-2xl font-bold mb-2 ${playfair.className}`}
                   >
@@ -160,7 +161,7 @@ function DestinationsContent() {
   );
 }
 
-/* ================= SUSPENSE WRAPPER ================= */
+
 export default function DestinationsPage() {
   return (
     <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>

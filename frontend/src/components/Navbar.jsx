@@ -14,7 +14,6 @@ export default function Navbar({ onLoginCheck }) {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ⭐ Check login via backend
   useEffect(() => {
     const checkLogin = async () => {
       try {
@@ -46,7 +45,7 @@ export default function Navbar({ onLoginCheck }) {
     checkLogin();
   }, []);
 
-  // 🕒 Timer
+ 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000);
     return () => clearInterval(timer);
@@ -65,23 +64,22 @@ export default function Navbar({ onLoginCheck }) {
     hour12: true,
   });
 
-  // ⭐ Protected Navigation Handler
+
   const handleProtectedNav = (path) => {
     if (!isLoggedIn) {
-      setShowLogin(true); // Show login popup
+      setShowLogin(true); 
       return;
     }
-    router.push(path); // Allow navigation if logged in
+    router.push(path); 
   };
 
-  // Logout
+
   const handleLogout = () => {
     document.cookie = "token=; Path=/; Max-Age=0;";
     setIsLoggedIn(false);
     if (onLoginCheck) onLoginCheck(false);
   };
 
-  // Login success callback
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setShowLogin(false);
@@ -91,7 +89,7 @@ export default function Navbar({ onLoginCheck }) {
   return (
     <div className="w-full">
 
-      {/* TOP BAR */}
+      
       <div className="hidden md:flex bg-teal-600 text-white text-sm justify-between items-center px-4 py-1 md:px-6 md:py-2">
         <div className="flex space-x-6">
           <span>{todayStr}</span>
@@ -113,7 +111,7 @@ export default function Navbar({ onLoginCheck }) {
             </button>
           )}
 
-          {/* Book Now (protected) */}
+          
           <button
             onClick={() => handleProtectedNav("/destinations")}
             className="bg-white text-teal-600 px-3 py-1 rounded"
@@ -123,11 +121,11 @@ export default function Navbar({ onLoginCheck }) {
         </div>
       </div>
 
-      {/* MAIN NAVBAR */}
+     
       <header className="bg-white shadow-md">
         <div className="flex justify-between items-center max-w-screen-xl mx-auto px-1 py-1">
 
-          {/* LOGO */}
+          
           <div className="relative w-36 h-14 md:w-42 md:h-20">
             <Image
               src="https://htmldesigntemplates.com/html/travelin/images/logo.png"
@@ -138,11 +136,11 @@ export default function Navbar({ onLoginCheck }) {
             />
           </div>
 
-          {/* DESKTOP MENU */}
+          
           <nav className="hidden md:flex space-x-5 text-gray-700">
             <Link href="/">Home</Link>
 
-            {/* ⭐ No hiding → but protected navigation */}
+            
             <button onClick={() => handleProtectedNav("/about")}>
               About Us
             </button>
@@ -155,16 +153,17 @@ export default function Navbar({ onLoginCheck }) {
               Tours
             </button>
 
-            <button onClick={() => handleProtectedNav("/pages")}>
-              Pages
+            <button onClick={() => handleProtectedNav("/bookings/status")}>
+              Bookings
             </button>
+
 
             <button onClick={() => handleProtectedNav("/blog")}>
               Blog
             </button>
           </nav>
 
-          {/* MOBILE MENU BUTTON */}
+         
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-gray-700"
@@ -173,7 +172,7 @@ export default function Navbar({ onLoginCheck }) {
           </button>
         </div>
 
-        {/* MOBILE MENU */}
+        
         {menuOpen && (
           <div className="md:hidden bg-white px-4 pb-4 shadow-lg">
             <nav className="flex flex-col space-y-4 text-gray-700 font-medium">
@@ -182,14 +181,17 @@ export default function Navbar({ onLoginCheck }) {
                 Home
               </Link>
 
-              {/* ⭐ Protected on mobile */}
+              
               <button onClick={() => handleProtectedNav("/about")}>About Us</button>
               <button onClick={() => handleProtectedNav("/destinations")}>Destinations</button>
               <button onClick={() => handleProtectedNav("/tours")}>Tours</button>
-              <button onClick={() => handleProtectedNav("/pages")}>Pages</button>
+              <button onClick={() => handleProtectedNav("/bookings/status")}>
+                Bookings
+              </button>
+
               <button onClick={() => handleProtectedNav("/blog")}>Blog</button>
 
-              {/* LOGIN / LOGOUT */}
+              
               {isLoggedIn ? (
                 <button
                   onClick={() => {
@@ -216,7 +218,7 @@ export default function Navbar({ onLoginCheck }) {
         )}
       </header>
 
-      {/* LOGIN MODAL */}
+      
       {showLogin && (
         <AuthModol
           onClose={() => setShowLogin(false)}
