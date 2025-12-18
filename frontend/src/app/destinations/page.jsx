@@ -8,6 +8,8 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { Playfair_Display } from "next/font/google";
 import Footer from "@/components/Footer";
+import ErrorFallback from "@/components/ErrorFallback";
+
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,25 +21,44 @@ function DestinationsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   const searchParams = useSearchParams();
   const destinationParam = searchParams.get("destination");
 
-  useEffect(() => {
-    const fetchDestinations = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/destinations");
-        if (!res.ok) throw new Error("Failed to fetch destinations");
-        const data = await res.json();
-        setDestinations(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchDestinations = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/destinations", {
+        credentials: "include", 
+      });
 
-    fetchDestinations();
-  }, []);
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("UNAUTHORIZED");
+        }
+        throw new Error("FAILED");
+      }
+
+      const data = await res.json();
+
+     
+      if (Array.isArray(data)) {
+        setDestinations(data);
+      } else if (Array.isArray(data.data)) {
+        setDestinations(data.data);
+      } else {
+        setDestinations([]);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDestinations();
+}, []);
+
 
   const finalDestinations = destinationParam
     ? destinations.filter((place) =>
@@ -53,13 +74,25 @@ function DestinationsContent() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen text-red-600">
-        {error}
-      </div>
-    );
-  }
+ if (error) {
+  return (
+    <ErrorFallback
+      title="Oops! Page Not Found"
+      heading={
+        error === "UNAUTHORIZED"
+          ? "Please Login To Access This Page"
+          : "Something Went Wrong"
+      }
+      description={
+        error === "UNAUTHORIZED"
+          ? "You must be logged in to view destinations."
+          : "We couldn’t load destinations at the moment."
+      }
+      showHomeButton
+    />
+  );
+}
+
 
   return (
     <>
@@ -129,7 +162,7 @@ function DestinationsContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent pointer-events-none"></div>
 
                 <div className="absolute bottom-0 left-0 p-5 text-left text-white">
-                  {/* ✅ LOGIC FIX ONLY */}
+                 
                   <p className="text-yellow-400 text-sm font-medium mb-1">
                     {place.name.split(",")[1]?.trim() || "Explore"}
                   </p>

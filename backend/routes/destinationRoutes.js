@@ -1,6 +1,8 @@
 import express from "express";
 import Destination from "../models/Destination.js"; 
 
+
+
 const router = express.Router();
 
 
@@ -15,7 +17,7 @@ router.post("/", async (req, res) => {
 });
 
 
-router.get("/", async (req, res) => {
+router.get("/",async (req, res) => {
   try {
     const destinations = await Destination.find();
     res.json(destinations);
@@ -38,12 +40,12 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ADD REVIEW TO DESTINATION
+
 router.post("/destination/:id/review", async (req, res) => {
   try {
     const { user, rating, comment } = req.body;
 
-    // FIX 1: correct model name
+    
     const destination = await Destination.findById(req.params.id);
 
     if (!destination) {

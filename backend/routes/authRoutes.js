@@ -69,7 +69,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GOOGLE LOGIN
 router.post("/google-login", async (req, res) => {
   try {
     const { token } = req.body;

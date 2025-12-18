@@ -2,6 +2,11 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
+import { Playfair_Display } from "next/font/google";
+import Link from "next/link";
+
+
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"] });
 
 export default function BookingStatus() {
   const [bookings, setBookings] = useState([]);
@@ -31,6 +36,38 @@ export default function BookingStatus() {
   return (
     <>
     <Navbar/>
+    <section
+        className="relative bg-cover bg-center h-[400px] md:h-[180px] flex flex-col justify-center"
+        style={{
+          backgroundImage:
+            "url('https://htmldesigntemplates.com/html/travelin/images/bg/bg1.jpg')",
+        }}
+      >
+        
+        <div className="absolute inset-0 bg-[#012C3D]/85 mix-blend-multiply"></div>
+
+        
+        
+
+        
+        <div className="relative z-20 text-center text-white max-w-3xl mx-auto px-4">
+          <h1
+            className={`text-4xl md:text-2xl font-bold mb-4 drop-shadow-xl ${playfair.className}`}
+          >
+            BOOKING LIST
+          </h1>
+          <p className="text-gray-200 text-lg">
+            <Link
+              href="/"
+              className="hover:text-yellow-400 transition duration-300 font-medium"
+            >
+              Home
+            </Link>{" "}
+            <span className="text-yellow-400 font-bold">|</span>{" "}
+            <span className="text-white/90">Bookings List</span>
+          </p>
+        </div>
+      </section>
     <div className="max-w-5xl mx-auto p-10">
       <h1 className="text-3xl font-bold mb-8 text-center">
         Booking Status

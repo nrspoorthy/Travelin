@@ -8,18 +8,32 @@ const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"] }
 export default function BestTourPackages() {
   const [destinations, setDestinations] = useState([]);
 
-  useEffect(() => {
-    async function fetchDestinations() {
-      try {
-        const res = await fetch("http://localhost:5000/api/destinations");
-        const data = await res.json();
-        setDestinations(data.slice(0, 6)); 
-      } catch (err) {
-        console.error("Error fetching destinations:", err);
+useEffect(() => {
+  async function fetchDestinations() {
+    try {
+      const res = await fetch("http://localhost:5000/api/destinations", {
+        credentials: "include", 
+      });
+
+      const data = await res.json();
+
+     
+      if (Array.isArray(data)) {
+        setDestinations(data.slice(0, 6));
+      } else if (Array.isArray(data.data)) {
+        setDestinations(data.data.slice(0, 6));
+      } else {
+        console.error("Unexpected API response:", data);
+        setDestinations([]);
       }
+    } catch (err) {
+      console.error("Error fetching destinations:", err);
     }
-    fetchDestinations();
-  }, []);
+  }
+
+  fetchDestinations();
+}, []);
+
 
   return (
     <section className="py-15 ">

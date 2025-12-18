@@ -5,21 +5,23 @@ import cookieParser from "cookie-parser";
 
 import connectdb from "./config/db.js";
 
-// ROUTES
 import destinationRoutes from "./routes/destinationRoutes.js";
 import tourRoutes from "./routes/tourRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";  
+import { verifyToken } from "./middleware/authMiddleware.js";
+
+
 
 dotenv.config();
 
-// Connect to DB
+
 connectdb();
 
 const app = express();
 
-// Middlewares
+
 app.use(express.json());
 app.use(cookieParser());   
 
@@ -32,17 +34,16 @@ app.use(
   })
 );
 
-// Default route
+
 app.get("/", (req, res) => {
   res.send("TravelIn Backend Running");
 });
 
-// API Routes
-app.use("/api/destinations", destinationRoutes);
-app.use("/api/tours", tourRoutes);
-app.use("/api/bookings", bookingRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);  
-// Server
+app.use("/api/destinations",verifyToken, destinationRoutes);
+app.use("/api/tours",verifyToken, tourRoutes);
+app.use("/api/bookings",verifyToken, bookingRoutes);
+app.use("/api/user",verifyToken, userRoutes);  
+
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

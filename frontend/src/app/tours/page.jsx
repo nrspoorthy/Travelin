@@ -7,18 +7,68 @@ import { Star } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Playfair_Display } from "next/font/google";
+import ErrorFallback from "@/components/ErrorFallback";
+
 
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"] });
 export default function ToursListingPage() {
   const [tours, setTours] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch("http://localhost:5000/api/tours/tour")
-      .then((res) => res.json())
-      .then((data) => setTours(data))
-      .catch((err) => console.error(err));
-  }, []);
+
+useEffect(() => {
+  const fetchTours = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/tours/tour", {
+        credentials: "include", 
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("UNAUTHORIZED");
+        }
+        throw new Error("FAILED");
+      }
+
+      const data = await res.json();
+      setTours(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTours();
+}, []);
+if (loading) {
+  return (
+    <div className="flex justify-center items-center h-screen text-gray-600">
+      Loading tours...
+    </div>
+  );
+}
+if (error) {
+  return (
+    <ErrorFallback
+      title="Oops! Page Not Found"
+      heading={
+        error === "UNAUTHORIZED"
+          ? "Please Login To View Tours"
+          : "Something Went Wrong"
+      }
+      description={
+        error === "UNAUTHORIZED"
+          ? "You must be logged in to explore tours."
+          : "We couldn’t load tours right now."
+      }
+      showHomeButton
+    />
+  );
+}
+
 
   return (
     <>
