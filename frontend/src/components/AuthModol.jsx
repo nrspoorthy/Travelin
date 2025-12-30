@@ -36,11 +36,11 @@ export default function AuthModol({ onClose, onLoginSuccess }) {
     );
   }, []);
 
-  // ⭐ GOOGLE LOGIN
+
   const handleGoogleResponse = async (response) => {
     setMsg("");
 
-    const res = await fetch("http://localhost:5000/api/auth/google-login", {
+    const res = await fetch("/api/auth/google-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: response.credential }),
@@ -49,10 +49,10 @@ export default function AuthModol({ onClose, onLoginSuccess }) {
     const data = await res.json();
     if (!data.success) return setMsg("Google Login Failed");
 
-    // SAVE TOKEN IN COOKIE
+    
     document.cookie = `token=${data.token}; path=/; max-age=604800;`;
 
-    // ⭐ UPDATE NAVBAR IMMEDIATELY
+    
     if (onLoginSuccess) onLoginSuccess();
 
     onClose();

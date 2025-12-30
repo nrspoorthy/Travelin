@@ -39,14 +39,25 @@ function DestinationBookingContent() {
   });
 
 
-  useEffect(() => {
-    if (!destinationId) return;
+useEffect(() => {
+  if (!destinationId) return;
 
-    fetch(`http://localhost:5000/api/destinations/${destinationId}`)
-      .then((res) => res.json())
-      .then((data) => setDestination(data))
-      .catch(console.error);
-  }, [destinationId]);
+  fetch(`/api/destinations/${destinationId}`, {
+    credentials: "include", 
+  })
+    .then((res) => {
+      if (!res.ok) {
+        if (res.status === 401) throw new Error("UNAUTHORIZED");
+        throw new Error("FAILED");
+      }
+      return res.json();
+    })
+    .then((data) => setDestination(data))
+    .catch((err) => {
+      console.error(err);
+    });
+}, [destinationId]);
+
 
 
   const handleChange = (e) =>

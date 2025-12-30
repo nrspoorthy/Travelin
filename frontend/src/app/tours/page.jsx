@@ -21,7 +21,7 @@ const [error, setError] = useState(null);
 useEffect(() => {
   const fetchTours = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/tours/tour", {
+      const res = await fetch("/api/tours", {
         credentials: "include", 
       });
 

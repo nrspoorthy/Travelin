@@ -13,7 +13,7 @@ export default function BookingStatus() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/bookings/status")
+    fetch("/api/bookings/status")
       .then((res) => res.json())
       .then((data) => {
         setBookings(data.bookings || []);

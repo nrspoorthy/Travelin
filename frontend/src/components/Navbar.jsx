@@ -9,15 +9,47 @@ import { useRouter } from "next/navigation";
 export default function Navbar({ onLoginCheck }) {
   const router = useRouter();
 
-  const [time, setTime] = useState(new Date());
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+
+  const [todayStr, setTodayStr] = useState("");
+  const [timeStr, setTimeStr] = useState("");
+
+ 
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+
+      setTodayStr(
+        now.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      );
+
+      setTimeStr(
+        now.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      );
+    };
+
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/user/profile", {
+        const res = await fetch("/api/user/profile", {
           method: "GET",
           credentials: "include",
         });
@@ -39,24 +71,6 @@ export default function Navbar({ onLoginCheck }) {
 
     checkLogin();
   }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const todayStr = time.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  const timeStr = time.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
 
   const handleProtectedNav = (path) => {
     if (!isLoggedIn) {
@@ -82,7 +96,7 @@ export default function Navbar({ onLoginCheck }) {
 
   return (
     <div className="w-full">
-      
+      {/* TOP BAR */}
       <div className="hidden md:flex bg-teal-600 text-white text-sm justify-between items-center px-6 py-2">
         <div className="flex space-x-6">
           <span>{todayStr}</span>
@@ -113,21 +127,21 @@ export default function Navbar({ onLoginCheck }) {
         </div>
       </div>
 
-      {/* HEADER */}
+      
       <header className="bg-white shadow-md">
         <div className="flex justify-between items-center max-w-screen-xl mx-auto px-4 py-2">
           <div className="relative w-36 h-14 md:w-42 md:h-20">
             <Link href="/">
-            <Image
-              src="https://htmldesigntemplates.com/html/travelin/images/logo.png"
-              alt="Logo"
-              fill
-              className="object-contain"
-            />
+              <Image
+                src="https://htmldesigntemplates.com/html/travelin/images/logo.png"
+                alt="Logo"
+                fill
+                className="object-contain"
+              />
             </Link>
           </div>
 
-          {/* DESKTOP NAV */}
+          
           <nav className="hidden md:flex space-x-5 text-gray-700">
             <Link href="/">Home</Link>
             <button onClick={() => handleProtectedNav("/about")}>About Us</button>
@@ -138,7 +152,7 @@ export default function Navbar({ onLoginCheck }) {
             <button onClick={() => handleProtectedNav("/bookings/status")}>
               Bookings
             </button>
-            <button onClick={() => handleProtectedNav("/blog")}>Blog</button>
+            <button onClick={() => handleProtectedNav("/account")}>Profile</button>
           </nav>
 
           
@@ -159,13 +173,13 @@ export default function Navbar({ onLoginCheck }) {
         onClick={() => setMenuOpen(false)}
       />
 
+      
       <div
-  className={`fixed top-0 right-0 z-50 h-full w-72
-  bg-gradient-to-b from-[#0f0c1d] to-[#1a1633]
-  transform transition-transform duration-700 ease-out
-  ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
->
-
+        className={`fixed top-0 right-0 z-50 h-full w-72
+        bg-gradient-to-b from-[#0f0c1d] to-[#1a1633]
+        transform transition-transform duration-700 ease-out
+        ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
         <div className="flex justify-end p-4">
           <button
             onClick={() => setMenuOpen(false)}
@@ -205,7 +219,7 @@ export default function Navbar({ onLoginCheck }) {
         </nav>
       </div>
 
-     
+      
       {showLogin && (
         <AuthModol
           onClose={() => setShowLogin(false)}

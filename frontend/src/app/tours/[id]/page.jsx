@@ -22,14 +22,25 @@ export default function TourDetailsPage() {
 
   const [currency, setCurrency] = useState("INR");
 
-  useEffect(() => {
-    if (!id) return;
+useEffect(() => {
+  if (!id) return;
 
-    fetch(`http://localhost:5000/api/tours/tour/${id}`)
-      .then((res) => res.json())
-      .then((data) => setTour(data))
-      .catch(console.error);
-  }, [id]);
+  fetch(`/api/tours/${id}`, {
+    credentials: "include",
+  })
+    .then((res) => {
+      if (!res.ok) {
+        if (res.status === 401) throw new Error("UNAUTHORIZED");
+        throw new Error("FAILED");
+      }
+      return res.json();
+    })
+    .then((data) => setTour(data))
+    .catch((err) => {
+      console.error(err);
+    });
+}, [id]);
+
 
   if (!tour) return <div className="p-10 text-center">Loading...</div>;
 
@@ -48,9 +59,9 @@ export default function TourDetailsPage() {
       <Navbar />
 
       <div className={`max-w-screen-xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-4 gap-8 ${playfair.className}`}>
-        {/* LEFT CONTENT */}
+        
         <div className="lg:col-span-3 space-y-8">
-          {/* TITLE SECTION */}
+          
           <div>
             <h1 className="text-4xl font-bold text-gray-800">
               {tour.tourName}

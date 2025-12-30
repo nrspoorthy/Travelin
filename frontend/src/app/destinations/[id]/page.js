@@ -21,28 +21,37 @@ export default function DestinationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!id) return;
+ useEffect(() => {
+  if (!id) return;
 
-   
+  const fetchDestination = async () => {
+    try {
+      const res = await fetch(
+        `/api/destinations/${id}`,
+        {
+          credentials: "include", 
+        }
+      );
 
-
-    const fetchDestination = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/destinations/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch destination");
-
-        const data = await res.json();
-        setDestination(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("UNAUTHORIZED");
+        }
+        throw new Error("FAILED");
       }
-    };
 
-    fetchDestination();
-  }, [id]);
+      const data = await res.json();
+      setDestination(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDestination();
+}, [id]);
+
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;

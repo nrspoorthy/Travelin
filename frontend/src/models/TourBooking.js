@@ -32,4 +32,4 @@ const tourBookingSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model("TourBooking", tourBookingSchema);
+export default mongoose.models.User || mongoose.model(" mongoose.models.User ||", tourBookingSchema);

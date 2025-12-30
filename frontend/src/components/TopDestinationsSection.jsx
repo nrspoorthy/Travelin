@@ -8,7 +8,7 @@ export default function TopDestinationsSection() {
   useEffect(() => {
     async function fetchDestinations() {
       try {
-        const res = await fetch("http://localhost:5000/api/destinations", {
+        const res = await fetch("/api/destinations", {
           credentials: "include", 
         });
 

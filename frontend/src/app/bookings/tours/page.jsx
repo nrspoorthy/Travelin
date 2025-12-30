@@ -42,7 +42,7 @@ function TourBookingContent() {
   useEffect(() => {
     if (!tourId) return;
 
-    fetch(`http://localhost:5000/api/tours/tour/${tourId}`)
+    fetch(`/api/tours/${tourId}`)
       .then((res) => res.json())
       .then((data) => setTour(data))
       .catch(console.error);

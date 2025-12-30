@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Playfair_Display } from "next/font/google";
+import { Link } from "lucide-react";
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -11,7 +12,7 @@ export default function BestTourPackages() {
 useEffect(() => {
   async function fetchDestinations() {
     try {
-      const res = await fetch("http://localhost:5000/api/destinations", {
+      const res = await fetch("/api/destinations", {
         credentials: "include", 
       });
 
@@ -54,12 +55,13 @@ useEffect(() => {
         <p
           className={`${playfair.className} text-gray-500 mb-12 max-w-2xl mx-auto`}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore.
+         Find the Perfect Tour for Your Next Adventure
+        Easy-to-book trips, amazing places, and memories you’ll never forget.
         </p>
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          
           {destinations.map((dest, i) => (
             <div
               key={i}
@@ -112,6 +114,7 @@ useEffect(() => {
               </div>
             </div>
           ))}
+          
         </div>
       </div>
     </section>
